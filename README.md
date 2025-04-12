@@ -31,7 +31,7 @@
     chmod +x ./stop.bash
     ```
 
-6. コンテナを停止停止します
+6. コンテナを停止します
 
     ```bash
     ./stop.bash
