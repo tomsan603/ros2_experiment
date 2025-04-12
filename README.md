@@ -9,8 +9,8 @@
 2. 実行権限を付与します(初回のみ)
 
     ```bash
-    cd ./ros2_ur
-    chmod +x run.bash
+    cd ./ros2_experiment
+    chmod +x ./run.bash
     ```
 
 3. コンテナを起動します
@@ -27,7 +27,6 @@
 5. 実行権限を付与します(初回のみ)
 
     ```bash
-    cd ./ros2_ur
     chmod +x ./stop.bash
     ```
 
