@@ -1,9 +1,9 @@
 # コンテナ（実験環境）の起動方法
 
-1. 好きなディレクトリで以下のコードを実行してください。
+1. 好きなディレクトリで以下のコードを実行してください
 
     ```bash
-    git clone https://github.com/tomsan603/ros2_experiment.git
+    git clone https://github.com/tomsan603/ros2_experiment.git　
     ```
 
 2. 実行権限を付与します(初回のみ)
