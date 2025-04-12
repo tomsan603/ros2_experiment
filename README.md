@@ -22,13 +22,13 @@
 4. コンテナを停止する場合はコンテナ内のbashをログアウトします
 
     ```bash
-    exitexit
+    exit
     ```
 5. 実行権限を付与します(初回のみ)
 
     ```bash
     cd ./ros2_ur
-    chmod +x stop.bash
+    chmod +x ./stop.bash
     ```
 
 6. コンテナを停止停止します
