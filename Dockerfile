@@ -15,6 +15,7 @@ RUN apt-get update -q && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-colcon-common-extensions \
     python3-rosdep \
+    python3-vcstool \
     && rm -rf /var/lib/apt/lists/*
 
 # Gazebo（シミュレーション）とRViz2（可視化）を完全インストール
@@ -22,6 +23,8 @@ RUN apt-get update -q && apt-get install -y --no-install-recommends \
     ros-humble-gazebo-ros-pkgs \
     ros-humble-gazebo-ros \
     ros-humble-rviz2 \
+    ros-humble-ros2-contorol\
+    ros-humble-ros2-controllers \
     && rm -rf /var/lib/apt/lists/*
 
 # カメラセンサ（RealSense）
