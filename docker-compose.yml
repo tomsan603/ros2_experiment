@@ -11,7 +11,7 @@ services:
       - QT_X11_NO_MITSHM=1
       - ROBOT_IP=${ROBOT_IP:-192.168.1.20}  # Default IP for real robot, override with environment
     volumes:
-      - ./src:/ros2_ws/src/my_packages
+      - ./src:/ros2_ws/src
       - /tmp/.X11-unix:/tmp/.X11-unix
       - $HOME/.Xauthority:/root/.Xauthority:ro
       - /dev/:/dev/
