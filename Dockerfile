@@ -25,6 +25,8 @@ RUN apt-get update -q && apt-get install -y --no-install-recommends \
     ros-humble-rviz2 \
     ros-humble-ros2-control\
     ros-humble-ros2-controllers \
+    libasio-dev \
+    libcurlpp-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # カメラセンサ（RealSense）
@@ -63,7 +65,8 @@ RUN cd /ros2_ws/src && \
     git clone https://github.com/UniversalRobots/Universal_Robots_Client_Library.git --depth 1 && \
     git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Gazebo_Simulation.git -b humble --depth 1 && \
     git clone https://github.com/PickNikRobotics/ros2_robotiq_gripper.git && \
-    git clone https://github.com/ian-chuang/serial-ros2.git
+    git clone https://github.com/ian-chuang/serial-ros2.git && \
+    git clone https://github.com/gbartyzel/ros2_net_ft_driver.git -b humble
 
 
 # 依存関係をすべて解決
