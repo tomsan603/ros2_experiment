@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export ROBOT_IP=${ROBOT_IP:-192.168.1.20}
+#export ROBOT_IP=${ROBOT_IP:-192.168.1.20}
 
 CONTAINER=ros2_experiment
 

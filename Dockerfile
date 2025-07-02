@@ -22,13 +22,20 @@ RUN apt-get update -q && apt-get install -y --no-install-recommends \
 RUN apt-get update -q && apt-get install -y --no-install-recommends \
     ros-humble-gazebo-ros-pkgs \
     ros-humble-gazebo-ros \
+    ros-humble-ros-gz \
     ros-humble-rviz2 \
+    ros-humble-ign-ros2-control \
     ros-humble-ros2-control\
     ros-humble-ros2-controllers \
+
     libasio-dev \
     libcurlpp-dev \
     && rm -rf /var/lib/apt/lists/*
 
+RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable jammy main" > /etc/apt/sources.list.d/gazebo-stable.list'
+RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+RUN sudo apt-get update -q
+RUN sudo apt-get install -y libgz-gui7-dev libgz-rendering7-dev libgz-sensors7-dev
 # カメラセンサ（RealSense）
 RUN apt-get update -q && apt-get install -y --no-install-recommends \
     ros-humble-realsense2-camera \
@@ -58,14 +65,25 @@ RUN apt-get update -q && apt-get install -y --no-install-recommends \
 WORKDIR /ros2_ws
 RUN mkdir -p /ros2_ws/src
 
+#sudo apt update
+#sudo apt install ros-humble-ros-gz-sim
+#sudo apt update
+#sudo apt install ros-humble-ros-gz \
+                # ros-humble-ros-gz-bridge \
+                 #ros-humble-ros-gz-sim \
+                 #ros-humble-ros-gz-image \
+                 #ros-humble-ros-gz-interfaces \
+                 #ros-humble-ros-gz-sim-demos \
+                 #ros-humble-gz-ros2-control
 # UR関連リポジトリをクローン
 RUN cd /ros2_ws/src && \
+    git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_GZ_Simulation.git -b humble --depth 1 && \
     git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver.git -b humble --depth 1 && \
     git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Description.git -b humble --depth 1 && \
     git clone https://github.com/UniversalRobots/Universal_Robots_Client_Library.git --depth 1 && \
     git clone https://github.com/UniversalRobots/Universal_Robots_ROS2_Gazebo_Simulation.git -b humble --depth 1 && \
     git clone https://github.com/PickNikRobotics/ros2_robotiq_gripper.git && \
-    git clone https://github.com/ian-chuang/serial-ros2.git && \
+    git clone https://github.com/ian-chuang/serial-ros2.git -b humble&& \
     git clone https://github.com/gbartyzel/ros2_net_ft_driver.git -b humble
 
 
