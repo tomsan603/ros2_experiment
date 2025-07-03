@@ -1,3 +1,33 @@
+# Copyright (c) 2021 Stogl Robotics Consulting UG (haftungsbeschränkt)
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#
+#    * Neither the name of the {copyright_holder} nor the names of its
+#      contributors may be used to endorse or promote products derived from
+#      this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# Author: Denis Stogl
+
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
@@ -8,13 +38,17 @@ from launch.actions import (
 from launch.conditions import IfCondition, UnlessCondition
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import (
+    Command,
+    FindExecutable,
+    LaunchConfiguration,
+    PathJoinSubstitution,
+)
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def launch_setup(context, *args, **kwargs):
-
     # Initialize Arguments
     ur_type = LaunchConfiguration("ur_type")
     safety_limits = LaunchConfiguration("safety_limits")
@@ -23,7 +57,6 @@ def launch_setup(context, *args, **kwargs):
     # General arguments
     runtime_config_package = LaunchConfiguration("runtime_config_package")
     controllers_file = LaunchConfiguration("controllers_file")
-    initial_positions_file = LaunchConfiguration("initial_positions_file")
     description_package = LaunchConfiguration("description_package")
     description_file = LaunchConfiguration("description_file")
     prefix = LaunchConfiguration("prefix")
@@ -31,13 +64,10 @@ def launch_setup(context, *args, **kwargs):
     initial_joint_controller = LaunchConfiguration("initial_joint_controller")
     launch_rviz = LaunchConfiguration("launch_rviz")
     gazebo_gui = LaunchConfiguration("gazebo_gui")
+    world_file = LaunchConfiguration("world_file")
 
     initial_joint_controllers = PathJoinSubstitution(
         [FindPackageShare(runtime_config_package), "config", controllers_file]
-    )
-
-    initial_positions_file_abs = PathJoinSubstitution(
-        [FindPackageShare(runtime_config_package), "config", initial_positions_file]
     )
 
     rviz_config_file = PathJoinSubstitution(
@@ -70,15 +100,10 @@ def launch_setup(context, *args, **kwargs):
             "prefix:=",
             prefix,
             " ",
-            "sim_gazebo:=true",
-            " ",
-            "sim_ignition:=false",
+            "sim_ignition:=true",
             " ",
             "simulation_controllers:=",
             initial_joint_controllers,
-            " ",
-            "initial_positions_file:=",
-            initial_positions_file_abs,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -137,28 +162,45 @@ def launch_setup(context, *args, **kwargs):
         condition=UnlessCondition(start_joint_controller),
     )
 
-    # Gazebo nodes
-    gazebo = IncludeLaunchDescription(
+    # GZ nodes
+    gz_spawn_entity = Node(
+        package="ros_gz_sim",
+        executable="create",
+        output="screen",
+        arguments=[
+            "-string",
+            robot_description_content,
+            "-name",
+            "ur",
+            "-allow_renaming",
+            "true",
+        ],
+    )
+    gz_launch_description_with_gui = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [FindPackageShare("gazebo_ros"), "/launch", "/gazebo.launch.py"]
+            [FindPackageShare("ros_gz_sim"), "/launch/gz_sim.launch.py"]
         ),
-        launch_arguments={
-            "gui": gazebo_gui,
-        }.items(),
+        launch_arguments={"gz_args": [" -r -v 4 ", world_file]}.items(),
+        condition=IfCondition(gazebo_gui),
     )
 
+    gz_launch_description_without_gui = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [FindPackageShare("ros_gz_sim"), "/launch/gz_sim.launch.py"]
+        ),
+        launch_arguments={"gz_args": [" -s -r -v 4 ", world_file]}.items(),
+        condition=UnlessCondition(gazebo_gui),
+    )
 
-
-    # Spawn robot
-    gazebo_spawn_robot = Node(
-        package="gazebo_ros",
-        executable="spawn_entity.py",
-        name="spawn_ur",
-        arguments=["-entity", "ur", "-topic", "robot_description"],
+    # Make the /clock topic available in ROS
+    gz_sim_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        arguments=[
+            "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock",
+        ],
         output="screen",
     )
-
-
 
     nodes_to_start = [
         robot_state_publisher_node,
@@ -167,8 +209,10 @@ def launch_setup(context, *args, **kwargs):
         initial_joint_controller_spawner_stopped,
         initial_joint_controller_spawner_started,
         gripper_controller_spawner,
-        gazebo,
-        gazebo_spawn_robot,
+        gz_spawn_entity,
+        gz_launch_description_with_gui,
+        gz_launch_description_without_gui,
+        gz_sim_bridge,
     ]
 
     return nodes_to_start
@@ -188,9 +232,10 @@ def generate_launch_description():
                 "ur5e",
                 "ur7e",
                 "ur10",
-                "ur12e",
                 "ur10e",
+                "ur12e",
                 "ur16e",
+                "ur15",
                 "ur20",
                 "ur30",
             ],
@@ -236,19 +281,6 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "initial_positions_file",
-            default_value=PathJoinSubstitution(
-                [
-                    FindPackageShare("ur_description"),
-                    "config",
-                    "initial_positions.yaml",
-                ]
-            ),
-            description="YAML file (absolute path) with the robot's initial joint positions.",
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
             "description_package",
             default_value="ur_robotiq_description",
             description="Description package with robot URDF/XACRO files. Usually the argument \
@@ -258,7 +290,7 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             "description_file",
-            default_value="ur3e_camera_gripper.urdf.xacro",
+            default_value="a.urdf.xacro",
             description="URDF/XACRO description file with the robot.",
         )
     )
@@ -291,6 +323,13 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             "gazebo_gui", default_value="true", description="Start gazebo with GUI?"
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "world_file",
+            default_value="empty.sdf",
+            description="Gazebo world file (absolute path or filename from the gazebosim worlds collection) containing a custom world.",
         )
     )
 
