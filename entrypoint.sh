@@ -6,3 +6,5 @@ ros2 launch ur_robotiq_description gz_sim.launch.py
 docker exec -it ros2_experiment bash
 apt update&&apt install ros-humble-ign-ros2-control
 apt update&&apt install ros-humble-ros-gz
+ros2 launch ur_robotiq_description gz_sim.launch.py world_file:="/ros2_ws/src/my_packages/ur_robotiq_description/worlds/my_world.sdf"
+ros2 launch ur_robotiq_description gz_sim.launch.py world_file:="/ros2_ws/src/my_packages/ur_robotiq_description/worlds/my_world.sdf"

@@ -19,12 +19,20 @@ class GripperForceController(Node):
         self.declare_parameter('force_setpoint', 5.0) # 目標とする力 [N・m] (要調整)
         self.declare_parameter('gripper_joint_name', 'robotiq_85_left_knuckle_joint')
 
-        # パラメータを取得
-        self._update_params()
+
+        self.kp = self.get_parameter('kp').get_parameter_value().double_value
+        self.ki = self.get_parameter('ki').get_parameter_value().double_value
+        self.kd = self.get_parameter('kd').get_parameter_value().double_value
+        self.force_setpoint = self.get_parameter('force_setpoint').get_parameter_value().double_value
 
         # PIDコントローラーの初期化
         self.pid = PID(self.kp, self.ki, self.kd, setpoint=self.force_setpoint)
         self.pid.output_limits = (-0.05, 0.05) # 1ステップあたりの位置変化量の上限 (要調整)
+
+        
+        # パラメータを取得
+        self._update_params()
+
 
         # 状態変数の初期化
         self.current_effort = 0.0
