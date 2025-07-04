@@ -81,7 +81,7 @@ DockerとGitをダウンロードしてください
 # ４補足（パッケージの説明）
 ## my_robot_description
 ロボットのモデル（形状、関節、センサー）を定義するパッケージです
-## my_robot_simulasion
+## my_robot_simulation
 Gazeboを起動し、ROS2と接続するためのパッケージです
 ## my_robot_bringup
 実機のロボットを起動し、ROS2と接続するためのパッケージです
