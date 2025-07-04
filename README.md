@@ -77,7 +77,27 @@ DockerとGitをダウンロードしてください
 
 # ３実験方法
 ## シミュレーション実験の場合
+1. Gazeboを立ち上げます
+
+    ```bash
+    ros2 launch my_robot_simulation my_robot_sim.launch.py
+    ```
+2. 自作制御ノードを起動してgazebo内のロボットを動かします(xxxは自作した任意の名称)
+
+    ```bash
+    ros2 run my_robot_apps xxx.py
+    ```
 ## 実機実験の場合
+1. 実機ドライバーを立ち上げます
+
+    ```bash
+    ros2 launch my_robot_bringup my_robot_control.launch.py
+    ```
+2. 自作制御ノードを起動して実機のロボットを動かします(xxxは自作した任意の名称)
+
+    ```bash
+    ros2 run my_robot_apps xxx.py
+    ```
 # ４補足（パッケージの説明）
 ## my_robot_description
 ロボットのモデル（形状、関節、センサー）を定義するパッケージです
