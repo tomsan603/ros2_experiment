@@ -154,9 +154,17 @@
   <xacro:arg name="com_port" default="/dev/ttyUSB0" />
 
   <!-- Import macros -->
+  <xacro:include filename="$(find my_robot_description)/urdf/robotiq_ft300.urdf.xacro" />
+
+   <xacro:robotiq_ft300 parent="tool0" tf_prefix="$(arg tf_prefix)">
+    <origin xyz="0 0 0" rpy="0 0 0"/> 
+  </xacro:robotiq_ft300>
+
+
+  <!-- Import macros -->
   <xacro:include filename="$(find my_robot_description)/urdf/robotiq_macro.urdf.xacro" />
 
-  <xacro:robotiq_gripper name="RobotiqGripperHardwareInterface" prefix="" parent="tool0" use_fake_hardware="$(arg use_fake_hardware)" com_port="$(arg com_port)" sim_ignition="$(arg sim_ignition)">
+  <xacro:robotiq_gripper name="RobotiqGripperHardwareInterface" tf_prefix=""  parent="robotiq_ft_frame_id" use_fake_hardware="$(arg use_fake_hardware)" com_port="$(arg com_port)" sim_ignition="$(arg sim_ignition)">
     <origin xyz="0 0 0" rpy="0 0 0" />
   </xacro:robotiq_gripper>
 
