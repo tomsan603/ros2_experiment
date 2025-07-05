@@ -71,7 +71,7 @@ def launch_setup(context, *args, **kwargs):
     )
 
     rviz_config_file = PathJoinSubstitution(
-         [FindPackageShare(runtime_config_package), "rviz", "view_sim_model.rviz"]
+         [FindPackageShare(runtime_config_package), "rviz", "view_sim.rviz"]
     )
 
     robot_description_content = Command(
@@ -176,6 +176,7 @@ def launch_setup(context, *args, **kwargs):
             "true",
         ],
     )
+
     gz_launch_description_with_gui = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [FindPackageShare("ros_gz_sim"), "/launch/gz_sim.launch.py"]
@@ -198,9 +199,12 @@ def launch_setup(context, *args, **kwargs):
         executable="parameter_bridge",
         arguments=[
             "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock",
+            "/ftaan@geometry_msgs/msg/WrenchStamped@ignition.msgs.Wrench"
         ],
         output="screen",
     )
+
+
 
 
     nodes_to_start = [

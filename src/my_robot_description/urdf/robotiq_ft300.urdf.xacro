@@ -2,6 +2,16 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
     <xacro:macro name="robotiq_ft300" params="parent tf_prefix *origin">
+
+    <!-- =============== Gazebo =============== -->
+    <gazebo>
+      <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      </plugin>
+      <plugin filename="ignition-gazebo-sensors-system" name="ignition::gazebo::systems::Sensors">
+        <render_engine>ogre2</render_engine>
+      </plugin>
+    </gazebo>
+
         <!-- ロボットアームにFTセンサーのマウントプレートを接続 -->
         <joint name="${tf_prefix}ft300_to_tool" type="fixed">
             <xacro:insert_block name="origin" />
@@ -52,21 +62,18 @@
             </collision>
         </link>
 
-        <xacro:if value="$(arg sim_ignition)">
-            <gazebo reference="${tf_prefix}ft300_sensor">
-               <sensor name="${tf_prefix}ft_sensor" type="force_torque">
-                   <always_on>true</always_on>
-                   <update_rate>30</update_rate>
-                   <topic>${tf_prefix}ft_sensor_data</topic>
-                   <force_torque>
-                       <frame>child</frame>
-                       <measure_direction>child_to_parent</measure_direction>
-                   </force_torque>
-                </sensor>
-                <plugin name="ignition::gazebo::systems::ForceTorque" filename="libignition-gazebo-force-torque-system.so"/>
-            </gazebo>
-        </xacro:if>
 
+<gazebo reference="${tf_prefix}ft300_sensor">
+  <sensor name="${tf_prefix}ft300_sensor" type="force_torque">
+    <always_on>true</always_on>
+    <update_rate>100</update_rate>
+    <topic>/ftaan</topic>
+    <force_torque>
+        <frame>child</frame>
+        <measure_direction>child_to_parent</measure_direction>
+    </force_torque>
+  </sensor>
+</gazebo>
         <!-- マウントプレートとセンサーの接続 -->
         <joint name="${tf_prefix}ft300_mounting_to_sensor" type="fixed">
             <origin xyz="0 0 0.0415" rpy="0 ${pi} 0"/>
